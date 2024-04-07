@@ -1,4 +1,5 @@
 import warnings
+import os
 
 import numpy as np
 import pydub
@@ -32,6 +33,10 @@ class SpectrogramConverter:
     """
 
     def __init__(self, params: SpectrogramParams, device: str = "cuda"):
+        ffmpeg_bin_path = r'C:\ffmpeg\bin'
+        # Add FFmpeg to PATH
+        os.environ["PATH"] += os.pathsep + ffmpeg_bin_path
+
         self.p = params
 
         self.device = torch_util.check_device(device)
@@ -90,10 +95,10 @@ class SpectrogramConverter:
             sample_rate=params.sample_rate,
             f_min=params.min_frequency,
             f_max=params.max_frequency,
-            max_iter=params.max_mel_iters,
-            tolerance_loss=1e-5,
-            tolerance_change=1e-8,
-            sgdargs=None,
+            # max_iter=params.max_mel_iters,
+            # tolerance_loss=1e-5,
+            # tolerance_change=1e-8,
+            # sgdargs=None,
             norm=params.mel_scale_norm,
             mel_scale=params.mel_scale_type,
         ).to(self.device)
