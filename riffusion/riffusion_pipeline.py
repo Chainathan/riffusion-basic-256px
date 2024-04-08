@@ -249,19 +249,23 @@ class RiffusionPipeline(DiffusionPipeline):
         text_embedding = embed_start + alpha * (embed_end - embed_start)
 
         # Image latents
-        init_image_torch = preprocess_image(init_image).to(
-            device=self.device, dtype=embed_start.dtype
-        )
-        init_latent_dist = self.vae.encode(init_image_torch).latent_dist
-        # TODO(hayk): Probably this seed should just be 0 always? Make it 100% symmetric. The
-        # result is so close no matter the seed that it doesn't really add variety.
-        if self.device.lower().startswith("mps"):
-            generator = torch.Generator(device="cpu").manual_seed(start.seed)
-        else:
-            generator = torch.Generator(device=self.device).manual_seed(start.seed)
+        if init_image is not None:
+            init_image_torch = preprocess_image(init_image).to(
+                device=self.device, dtype=embed_start.dtype
+            )
+            init_latent_dist = self.vae.encode(init_image_torch).latent_dist
+            # TODO(hayk): Probably this seed should just be 0 always? Make it 100% symmetric. The
+            # result is so close no matter the seed that it doesn't really add variety.
+            if self.device.lower().startswith("mps"):
+                generator = torch.Generator(device="cpu").manual_seed(start.seed)
+            else:
+                generator = torch.Generator(device=self.device).manual_seed(start.seed)
 
-        init_latents = init_latent_dist.sample(generator=generator)
-        init_latents = 0.18215 * init_latents
+            init_latents = init_latent_dist.sample(generator=generator)
+            init_latents = 0.18215 * init_latents
+        else:
+            init_latents = torch.randn(1, 4, 32, 32, device=self.device, dtype=torch.float16)
+
 
         # Prepare mask latent
         mask: T.Optional[torch.Tensor] = None
