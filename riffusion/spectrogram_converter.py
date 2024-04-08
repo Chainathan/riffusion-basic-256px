@@ -1,5 +1,6 @@
 import warnings
 import os
+import platform
 
 import numpy as np
 import pydub
@@ -33,9 +34,10 @@ class SpectrogramConverter:
     """
 
     def __init__(self, params: SpectrogramParams, device: str = "cuda"):
-        ffmpeg_bin_path = r'C:\ffmpeg\bin'
-        # Add FFmpeg to PATH
-        os.environ["PATH"] += os.pathsep + ffmpeg_bin_path
+        if platform.system() == "Windows":
+            ffmpeg_bin_path = r'C:\ffmpeg\bin'
+            # Add FFmpeg to PATH
+            os.environ["PATH"] += os.pathsep + ffmpeg_bin_path
 
         self.p = params
 
